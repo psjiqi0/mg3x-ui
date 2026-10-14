@@ -286,6 +286,7 @@ func (s *Server) initRouter() (*gin.Engine, error) {
 		if s.panel.HandleNoRoutePanelSPA(c) {
 			return
 		}
+		logger.Warning("404 NoRoute:", c.Request.Method, c.Request.URL.Path)
 		c.AbortWithStatus(http.StatusNotFound)
 	})
 
