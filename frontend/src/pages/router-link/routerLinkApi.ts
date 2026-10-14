@@ -1,5 +1,4 @@
 import { HttpUtil, type Msg } from '@/utils';
-import { withBasePath } from '@/api/http-init';
 import { parseMsg } from '@/utils/zodValidate';
 import {
   RouterLinkListSchema,
@@ -9,7 +8,7 @@ import {
   type RouterLinkStatusRecord,
 } from '@/schemas/api/router-link';
 
-const base = () => withBasePath('/routerlink');
+const base = () => '/routerlink';
 const JSON_HEADERS = { headers: { 'Content-Type': 'application/json' } };
 
 type MsgResult = { success?: boolean; msg?: string };
