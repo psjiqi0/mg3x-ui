@@ -1,0 +1,32 @@
+# 3x-ui 中转面板（relay-client-mode）compose 文件
+# 设计文档 RELAY_DESIGN.md §11.1 推荐方案：单面板容器（all-in-one）
+#
+# 用法（宿主机 /root/3x-ui-src 下）:
+#   docker compose -f docker-compose.relay.yml config   # 语法校验
+#   docker compose -f docker-compose.relay.yml build    # 构建镜像（由统一构建流程做）
+#   docker compose -f docker-compose.relay.yml up -d    # 启动（需人工确认后执行）
+#
+# volume 说明（对照 Dockerfile ENV）:
+# - XUI_MAIN_FOLDER=/app  是代码/静态资源目录，构建时已 COPY 进镜像，不需要挂载。
+# - /etc/x-ui 是数据库与配置目录（internal/config/config.go GetDBFolderPath，
+#   默认 /etc/x-ui，Dockerfile 也声明了 VOLUME ["/etc/x-ui"]），挂载到宿主机
+#   同路径以持久化 x-ui.db（含 RouterLink 表，auth 字段加密存）。
+# - ./routerlinks:/etc/x-ui/routerlinks 挂载面板生成的路由器拨号配置
+#   （.ovpn / pppd options / chap-secrets / ip-up.d 脚本，0600 权限），
+#   与 /etc/x-ui 挂载路径一致，方便在宿主机上直接审计生成的配置。
+services:
+  3xui-relay:
+    build: .
+    network_mode: host          # VPN 拨号 + forwardedPorts 公网监听都需要宿主网络视角
+    cap_add:
+      - NET_ADMIN               # 建 tun/ppp 接口、写 scoped 路由
+    devices:
+      - /dev/net/tun:/dev/net/tun
+      - /dev/ppp:/dev/ppp
+    volumes:
+      - /etc/x-ui:/etc/x-ui
+      - ./routerlinks:/etc/x-ui/routerlinks   # 生成的 ovpn config / pppd options /
+                                              # chap-secrets / ip-up.d 脚本（0600）
+    environment:
+      - XUI_IN_DOCKER=true
+    restart: unless-stopped
