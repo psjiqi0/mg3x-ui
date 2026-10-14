@@ -17,8 +17,8 @@ export class HttpError extends Error {
   status: number;
   response: { status: number; statusText: string; data: unknown };
 
-  constructor(status: number, statusText: string, data: unknown) {
-    super(`Request failed with status ${status}`);
+  constructor(status: number, statusText: string, data: unknown, url?: string) {
+    super(`Request failed with status ${status}${url ? `\nURL: ${url}` : ""}`);
     this.name = 'HttpError';
     this.status = status;
     this.response = { status, statusText, data };
@@ -192,7 +192,7 @@ export async function httpRequest(
   }
 
   const parsed = await parseBody(res);
-  if (!res.ok) throw new HttpError(res.status, res.statusText, parsed);
+  if (!res.ok) throw new HttpError(res.status, res.statusText, parsed, url);
   return { ok: true, status: res.status, statusText: res.statusText, data: parsed };
 }
 
