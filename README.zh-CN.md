@@ -50,6 +50,92 @@ docker compose -f docker-compose.relay.yml up -d
   - `/etc/x-ui` → 宿主机 `/etc/x-ui`（SQLite `x-ui.db`；路由器连接的认证信息加密存储）。
   - `./routerlinks` → 自动生成的拨号配置（`.ovpn`、pppd options、`chap-secrets` 等）。
 
+## 安装教程
+
+### 环境要求
+
+- Linux 服务器：Ubuntu 20.04+ / Debian 11+（x86_64 或 ARM64）
+- 已安装 Docker + Docker Compose
+- 内核模块：`wireguard`、`ppp_generic`（用 `modprobe wireguard ppp_generic` 加载）
+- 设备节点：`/dev/net/tun` 和 `/dev/ppp` 必须存在（OpenVPN / PPTP 拨号需要）
+- 开放端口：
+  - `2053/TCP` —— 面板（可改）
+  - 自建的入站端口（如 VLESS 9443）—— 按需在防火墙 / 云安全组放行
+
+### 一步步安装
+
+**1. 克隆仓库**
+
+```bash
+git clone https://github.com/psjiqi0/mg3x-ui
+cd mg3x-ui
+# 默认分支：main
+```
+
+**2. 构建镜像**（首次构建需要几分钟）
+
+```bash
+docker compose -f docker-compose.relay.yml build
+```
+
+**3. 启动容器**
+
+```bash
+docker compose -f docker-compose.relay.yml up -d
+```
+
+**4. 首次登录**
+
+浏览器打开 `http://<服务器IP>:2053`，用首次启动时打印的默认账号密码登录
+（`docker logs 3x-ui-src-3xui-relay-1` 可查）。**登录后立刻改密码**
+（面板 → 个人资料，或 `mg3x-ui` 菜单 → 修改面板密码）。
+
+**5. 安装 `mg3x-ui` 快捷命令**（可选，推荐）
+
+```bash
+curl -sSL https://raw.githubusercontent.com/psjiqi0/mg3x-ui/main/scripts/mg3x-ui \
+  -o /usr/local/bin/mg3x-ui && chmod +x /usr/local/bin/mg3x-ui
+```
+
+之后直接打 `mg3x-ui` 进交互菜单：
+
+| 命令 | 作用 |
+|---|---|
+| `mg3x-ui` | 交互菜单 |
+| `mg3x-ui status` | 容器 / 面板 / 路由器连接 / 隧道状态 |
+| `mg3x-ui restart` | 重启面板容器 |
+| `mg3x-ui logs` | 实时日志 |
+| `mg3x-ui update` | 从 GitHub 拉更新、重建、重启 |
+| `mg3x-ui links` | 列出路由器连接 |
+| `mg3x-ui chpasswd` | 修改面板密码 |
+| `mg3x-ui chport` | 修改面板端口 |
+
+### 添加第一个路由器连接
+
+见下文[快速开始：添加路由器连接](#快速开始添加路由器连接)。
+简单说：面板 → **路由器连接** → **添加**，从下拉框选 PPTP / WireGuard / OpenVPN，
+填对端地址和认证信息。以后编辑时，密码 / 私钥留空即保留原值，不用重填。
+
+### 常见问题
+
+**容器起不来？**
+```bash
+docker logs 3x-ui-src-3xui-relay-1 | tail -50
+```
+常见原因：2053 端口被占用、缺少 `/dev/net/tun` 或 `/dev/ppp`、
+`x-ui.db` 权限问题。
+
+**面板打不开？**
+- 确认容器在运行：`docker ps | grep 3xui-relay`
+- 检查防火墙 / 云安全组放行了 `2053/TCP`
+- 在服务器本机试 `curl http://127.0.0.1:2053/`
+
+**隧道拨不上？**
+- PPTP：核对路由器上的用户名 / 密码 / MPPE；看容器日志里的 `pppd` 输出
+- WireGuard：核对私钥 / 对端公钥 / 预共享密钥与路由器服务端一致；路由器服务端必须已添加这个客户端（peer）
+- OpenVPN：核对用户名 / 密码或证书；确认路由器 OpenVPN 服务端在对应端口监听
+- 确认路由器侧 VPN 服务端确实在运行、端口已放行
+
 ## 快速开始：添加路由器连接
 
 面板 → **路由器连接** → **添加**。先从下拉框选协议，再填：

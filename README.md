@@ -51,6 +51,93 @@ docker compose -f docker-compose.relay.yml up -d
   - `/etc/x-ui` → host `/etc/x-ui` (SQLite `x-ui.db`; router-link credentials stored encrypted).
   - `./routerlinks` → generated dial configs (`.ovpn`, pppd options, `chap-secrets`, …).
 
+## Installation
+
+### Environment requirements
+
+- Linux server: Ubuntu 20.04+ / Debian 11+ (x86_64 or ARM64)
+- Docker + Docker Compose installed
+- Kernel modules: `wireguard`, `ppp_generic` (load with `modprobe wireguard ppp_generic`)
+- Device nodes: `/dev/net/tun` and `/dev/ppp` must exist (needed for OpenVPN / PPTP dialing)
+- Open ports:
+  - `2053/TCP` — panel (changeable)
+  - Inbound ports you create (e.g. VLESS 9443) — open as needed in your firewall / cloud security group
+
+### Step-by-step installation
+
+**1. Clone the repository**
+
+```bash
+git clone https://github.com/psjiqi0/mg3x-ui
+cd mg3x-ui
+# default branch: main
+```
+
+**2. Build the image** (first build takes a few minutes)
+
+```bash
+docker compose -f docker-compose.relay.yml build
+```
+
+**3. Start the container**
+
+```bash
+docker compose -f docker-compose.relay.yml up -d
+```
+
+**4. First login**
+
+Open `http://<server-ip>:2053` in your browser and log in with the default
+credentials printed on first start (check `docker logs 3x-ui-src-3xui-relay-1`).
+**Change the password immediately** after logging in (panel → profile / `mg3x-ui` menu → change password).
+
+**5. Install the `mg3x-ui` shortcut command** (optional, recommended)
+
+```bash
+curl -sSL https://raw.githubusercontent.com/psjiqi0/mg3x-ui/main/scripts/mg3x-ui \
+  -o /usr/local/bin/mg3x-ui && chmod +x /usr/local/bin/mg3x-ui
+```
+
+Then just type `mg3x-ui` for an interactive menu:
+
+| Command | What it does |
+|---|---|
+| `mg3x-ui` | Interactive menu |
+| `mg3x-ui status` | Container / panel / router-link / tunnel status |
+| `mg3x-ui restart` | Restart the panel container |
+| `mg3x-ui logs` | Tail live logs |
+| `mg3x-ui update` | Pull from GitHub, rebuild and restart |
+| `mg3x-ui links` | List router connections |
+| `mg3x-ui chpasswd` | Change panel password |
+| `mg3x-ui chport` | Change panel port |
+
+### Adding your first router connection
+
+See [Quick start: add a router link](#quick-start-add-a-router-link) below.
+In short: panel → **Router Links** → **Add**, pick PPTP / WireGuard / OpenVPN
+from the dropdown, fill in the peer address and credentials. When editing later,
+leave password / private-key fields blank to keep the existing values.
+
+### FAQ
+
+**Container won't start?**
+```bash
+docker logs 3x-ui-src-3xui-relay-1 | tail -50
+```
+Common causes: port 2053 already in use, `/dev/net/tun` or `/dev/ppp` missing,
+`x-ui.db` permission issues.
+
+**Panel not reachable?**
+- Check the container is up: `docker ps | grep 3xui-relay`
+- Check the firewall / cloud security group allows `2053/TCP`
+- Try `curl http://127.0.0.1:2053/` on the server itself
+
+**Tunnel won't dial?**
+- PPTP: verify username/password/MPPE on the router; check `pppd` logs in container logs
+- WireGuard: verify private key / peer public key / preshared key match the router's server config; the router must have this client (peer) added
+- OpenVPN: verify username/password or certificates; the router's OpenVPN server must be reachable on the configured port
+- Make sure the router's VPN server is actually running and the port is open on the router side
+
 ## Quick start: add a router link
 
 Panel → **Router Links** → **Add**. Pick the protocol from the dropdown, then fill in:
