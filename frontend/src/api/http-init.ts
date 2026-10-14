@@ -206,6 +206,11 @@ export function setupHttp(): void {
     const metaTag = document.querySelector('meta[name="base-path"]');
     basePath = metaTag ? metaTag.getAttribute('content') : null;
   }
+  if (!basePath) {
+    // Fallback: derive from URL path (e.g. /999/panel/router-link -> /999)
+    const m = window.location.pathname.match(/^(\/[^\/]+)\/panel(\/|$)/);
+    if (m) basePath = m[1];
+  }
   basePathPrefix =
     typeof basePath === 'string' && basePath !== '' && basePath !== '/'
       ? basePath.replace(/\/$/, '')
