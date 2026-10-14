@@ -9,7 +9,7 @@ import {
   type RouterLinkStatusRecord,
 } from '@/schemas/api/router-link';
 
-const BASE = withBasePath('/panel/routerlink');
+const BASE = withBasePath('/routerlink');
 const JSON_HEADERS = { headers: { 'Content-Type': 'application/json' } };
 
 type MsgResult = { success?: boolean; msg?: string };
