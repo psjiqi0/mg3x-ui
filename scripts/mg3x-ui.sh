@@ -61,18 +61,25 @@ for r in db.execute(\"SELECT id,name,protocol,remote_host,lan_subnet,enable FROM
 }
 do_chpasswd() {
   read -p "新用户名 (回车保持): " u
-  read -s -p "新密码: " p; echo
+  read -p "新密码: " p; echo
   [ -n "$u" ] && python3 -c "
 import sqlite3
 db=sqlite3.connect(\"$DB\"); db.execute(\"UPDATE users SET username=? WHERE id=1\",(\"$u\",)); db.commit()
 " && echo "用户名已更新"
   python3 -c "import bcrypt" 2>/dev/null || pip3 install --break-system-packages -q bcrypt 2>&1 | tail -1
-  [ -n "$p" ] && python3 -c "
-import sqlite3, bcrypt
-db=sqlite3.connect(\"$DB\")
-h=bcrypt.hashpw(\"$p\".encode(), bcrypt.gensalt()).decode()
-db.execute(\"UPDATE users SET password=? WHERE id=1\",(h,)); db.commit()
-" && echo "密码已更新"
+  if [ -n "$p" ]; then
+    export MG3X_PW="$p" MG3X_DB="$DB"
+    python3 - << "PYEOF"
+import sqlite3, bcrypt, os
+db = sqlite3.connect(os.environ["MG3X_DB"])
+h = bcrypt.hashpw(os.environ["MG3X_PW"].encode(), bcrypt.gensalt()).decode()
+db.execute("UPDATE users SET password=? WHERE id=1", (h,))
+db.commit()
+print("OK")
+PYEOF
+    if [ $? -eq 0 ]; then echo "密码已更新"; else echo "密码更新失败"; fi
+    unset MG3X_PW MG3X_DB
+  fi
   do_restart
 }
 do_chport() {
