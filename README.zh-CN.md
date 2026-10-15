@@ -87,6 +87,16 @@ cd mg3x-ui
 docker compose -f docker-compose.relay.yml build
 ```
 
+> **小内存机器（1G 内存）：** 前端构建需要约 2G 内存。
+> 如果构建卡在 `vite build` 不动，先加 swap：
+> ```bash
+> sudo fallocate -l 2G /swapfile
+> sudo chmod 600 /swapfile
+> sudo mkswap /swapfile
+> sudo swapon /swapfile
+> ```
+> 然后重新构建。（或者在大机器上构建好，用 `docker save`/`docker load` 搬镜像。）
+
 **4. 启动容器**
 
 ```bash

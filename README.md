@@ -88,6 +88,16 @@ cd mg3x-ui
 docker compose -f docker-compose.relay.yml build
 ```
 
+> **Low-memory servers (1GB RAM):** the frontend build needs ~2GB RAM.
+> If the build stalls at `vite build`, add swap first:
+> ```bash
+> sudo fallocate -l 2G /swapfile
+> sudo chmod 600 /swapfile
+> sudo mkswap /swapfile
+> sudo swapon /swapfile
+> ```
+> Then re-run the build. (Or build on a bigger machine and `docker save`/`docker load` the image.)
+
 **4. Start the container**
 
 ```bash
