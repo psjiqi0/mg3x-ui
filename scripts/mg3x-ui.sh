@@ -1,6 +1,10 @@
 #!/bin/bash
 # mg3x-ui 管理脚本 (Docker 版)
-SRC="/root/3x-ui-src"
+# 自动探测源码目录
+for d in /root/3x-ui-src /root/mg3x-ui "$HOME/mg3x-ui" /opt/mg3x-ui; do
+  if [ -f "$d/docker-compose.relay.yml" ]; then SRC="$d"; break; fi
+done
+[ -z "$SRC" ] && SRC="/root/3x-ui-src"
 COMPOSE="docker compose -f $SRC/docker-compose.relay.yml"
 CONTAINER=$(docker ps -a --format "{{.Names}}" | grep -m1 "3xui-relay")
 DB="/etc/x-ui/x-ui.db"
@@ -62,10 +66,13 @@ do_chpasswd() {
 import sqlite3
 db=sqlite3.connect(\"$DB\"); db.execute(\"UPDATE users SET username=? WHERE id=1\",(\"$u\",)); db.commit()
 " && echo "用户名已更新"
+  python3 -c "import bcrypt" 2>/dev/null || pip3 install --break-system-packages -q bcrypt 2>&1 | tail -1
   [ -n "$p" ] && python3 -c "
-import sqlite3
-db=sqlite3.connect(\"$DB\"); db.execute(\"UPDATE users SET password=? WHERE id=1\",(\"$p\",)); db.commit()
-" && echo "密码已更新（明文示例，需面板加密）"
+import sqlite3, bcrypt
+db=sqlite3.connect(\"$DB\")
+h=bcrypt.hashpw(\"$p\".encode(), bcrypt.gensalt()).decode()
+db.execute(\"UPDATE users SET password=? WHERE id=1\",(h,)); db.commit()
+" && echo "密码已更新"
   do_restart
 }
 do_chport() {
