@@ -112,7 +112,7 @@ docker compose -f docker-compose.relay.yml up -d
 **6. 安装 `mg3x-ui` 快捷命令**（可选，推荐）
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/psjiqi0/mg3x-ui/main/scripts/mg3x-ui \
+curl -sSL https://raw.githubusercontent.com/psjiqi0/mg3x-ui/main/scripts/mg3x-ui.sh \
   -o /usr/local/bin/mg3x-ui && chmod +x /usr/local/bin/mg3x-ui
 ```
 

@@ -113,7 +113,7 @@ credentials printed on first start (check `docker logs 3x-ui-src-3xui-relay-1`).
 **6. Install the `mg3x-ui` shortcut command** (optional, recommended)
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/psjiqi0/mg3x-ui/main/scripts/mg3x-ui \
+curl -sSL https://raw.githubusercontent.com/psjiqi0/mg3x-ui/main/scripts/mg3x-ui.sh \
   -o /usr/local/bin/mg3x-ui && chmod +x /usr/local/bin/mg3x-ui
 ```
 
