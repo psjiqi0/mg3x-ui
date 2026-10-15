@@ -65,7 +65,16 @@ docker compose -f docker-compose.relay.yml up -d
 
 ### Step-by-step installation
 
-**1. Clone the repository**
+**1. Install Docker** (skip if already installed)
+
+```bash
+curl -fsSL https://get.docker.com | sh
+sudo systemctl enable --now docker
+docker --version
+docker compose version
+```
+
+**2. Clone the repository**
 
 ```bash
 git clone https://github.com/psjiqi0/mg3x-ui
@@ -73,25 +82,25 @@ cd mg3x-ui
 # default branch: main
 ```
 
-**2. Build the image** (first build takes a few minutes)
+**3. Build the image** (first build takes a few minutes)
 
 ```bash
 docker compose -f docker-compose.relay.yml build
 ```
 
-**3. Start the container**
+**4. Start the container**
 
 ```bash
 docker compose -f docker-compose.relay.yml up -d
 ```
 
-**4. First login**
+**5. First login**
 
 Open `http://<server-ip>:2053` in your browser and log in with the default
 credentials printed on first start (check `docker logs 3x-ui-src-3xui-relay-1`).
 **Change the password immediately** after logging in (panel → profile / `mg3x-ui` menu → change password).
 
-**5. Install the `mg3x-ui` shortcut command** (optional, recommended)
+**6. Install the `mg3x-ui` shortcut command** (optional, recommended)
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/psjiqi0/mg3x-ui/main/scripts/mg3x-ui \

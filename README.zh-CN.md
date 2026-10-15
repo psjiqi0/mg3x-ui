@@ -64,7 +64,7 @@ docker compose -f docker-compose.relay.yml up -d
 
 ### 一步步安装
 
-**1. 克隆仓库**
+**2. 克隆仓库**
 
 ```bash
 git clone https://github.com/psjiqi0/mg3x-ui
@@ -72,25 +72,25 @@ cd mg3x-ui
 # 默认分支：main
 ```
 
-**2. 构建镜像**（首次构建需要几分钟）
+**3. 构建镜像**（首次构建需要几分钟）
 
 ```bash
 docker compose -f docker-compose.relay.yml build
 ```
 
-**3. 启动容器**
+**4. 启动容器**
 
 ```bash
 docker compose -f docker-compose.relay.yml up -d
 ```
 
-**4. 首次登录**
+**5. 首次登录**
 
 浏览器打开 `http://<服务器IP>:2053`，用首次启动时打印的默认账号密码登录
 （`docker logs 3x-ui-src-3xui-relay-1` 可查）。**登录后立刻改密码**
 （面板 → 个人资料，或 `mg3x-ui` 菜单 → 修改面板密码）。
 
-**5. 安装 `mg3x-ui` 快捷命令**（可选，推荐）
+**6. 安装 `mg3x-ui` 快捷命令**（可选，推荐）
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/psjiqi0/mg3x-ui/main/scripts/mg3x-ui \
