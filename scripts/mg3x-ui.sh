@@ -2,7 +2,7 @@
 # mg3x-ui 管理脚本 (Docker 版)
 SRC="/root/3x-ui-src"
 COMPOSE="docker compose -f $SRC/docker-compose.relay.yml"
-CONTAINER="3x-ui-src-3xui-relay-1"
+CONTAINER=$(docker ps -a --format "{{.Names}}" | grep -m1 "3xui-relay")
 DB="/etc/x-ui/x-ui.db"
 
 set_setting() {
