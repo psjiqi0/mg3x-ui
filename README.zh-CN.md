@@ -64,6 +64,15 @@ docker compose -f docker-compose.relay.yml up -d
 
 ### 一步步安装
 
+**1. 安装 Docker**（已安装可跳过）
+
+```bash
+curl -fsSL https://get.docker.com | sh
+sudo systemctl enable --now docker
+docker --version
+docker compose version
+```
+
 **2. 克隆仓库**
 
 ```bash
