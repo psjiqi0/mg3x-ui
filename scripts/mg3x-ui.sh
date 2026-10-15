@@ -92,6 +92,11 @@ do_chport() {
 }
 do_cert() {
   echo "=== Cloudflare 证书申请与绑定 ==="
+  if ! command -v certbot &>/dev/null; then
+    echo "正在安装 certbot..."
+    sudo apt update -qq && sudo apt install -y -qq certbot python3-certbot-dns-cloudflare 2>&1 | tail -1
+    command -v certbot &>/dev/null || { echo "certbot 安装失败"; return; }
+  fi
   read -p "域名: " domain
   read -p "CF API Token: " cftoken; echo
   echo "Token 已输入 (长度 ${#cftoken} 字符, 开头 ${cftoken:0:4}****结尾 ****${cftoken: -4})"
