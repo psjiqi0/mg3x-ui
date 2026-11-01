@@ -18,8 +18,12 @@ services:
   3xui-relay:
     build: .
     network_mode: host          # VPN 拨号 + forwardedPorts 公网监听都需要宿主网络视角
+    privileged: true
+    security_opt:
+      - apparmor=unconfined
     cap_add:
       - NET_ADMIN               # 建 tun/ppp 接口、写 scoped 路由
+      - SYS_ADMIN               # pppd 设 PPP 线路规程需要
     devices:
       - /dev/net/tun:/dev/net/tun
       - /dev/ppp:/dev/ppp
